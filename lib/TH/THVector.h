@@ -25,8 +25,8 @@
 #endif
 
 #define THDoubleVector_fill(x, c, n) {          \
-    long i;                                     \
-    long off;                                   \
+    size_t i;                                     \
+    size_t off;                                   \
     __m128d XMM0 = _mm_set1_pd(c);              \
     for (i=0; i<=((n)-8); i+=8) {               \
       _mm_storeu_pd((x)+i  , XMM0);             \
@@ -42,7 +42,7 @@
 
 
 #define THDoubleVector_add(y, x, c, n) {        \
-    long i = 0;                                 \
+    size_t i = 0;                                 \
     __m128d XMM7 = _mm_set1_pd(c);              \
     __m128d XMM0,XMM2;                          \
     for (; i<=((n)-2); i+=2) {                  \
@@ -58,7 +58,7 @@
   }
 
 #define THDoubleVector_diff(z, x, y, n) {       \
-    long i;                                     \
+    size_t i;                                     \
     for (i=0; i<=((n)-8); i+=8) {               \
       __m128d XMM0 = _mm_loadu_pd((x)+i  );     \
       __m128d XMM1 = _mm_loadu_pd((x)+i+2);     \
@@ -77,14 +77,14 @@
       _mm_storeu_pd((z)+i+4, XMM2);             \
       _mm_storeu_pd((z)+i+6, XMM3);             \
     }                                           \
-    long off = (n) - ((n)%8);                   \
+    size_t off = (n) - ((n)%8);                   \
     for (i=0; i<((n)%8); i++) {                 \
       z[off+i] = x[off+i] - y[off+i];           \
     }                                           \
   }
 
 #define THDoubleVector_scale(y, c, n) {         \
-    long i;                                     \
+    size_t i;                                     \
     __m128d XMM7 = _mm_set1_pd(c);              \
     for (i=0; i<=((n)-4); i+=4) {               \
       __m128d XMM0 = _mm_loadu_pd((y)+i  );     \
@@ -94,14 +94,14 @@
       _mm_storeu_pd((y)+i  , XMM0);             \
       _mm_storeu_pd((y)+i+2, XMM1);             \
     }                                           \
-    long off = (n) - ((n)%4);                   \
+    size_t off = (n) - ((n)%4);                   \
     for (i=0; i<((n)%4); i++) {                 \
       y[off+i] *= c;                            \
     }                                           \
   }
 
 #define THDoubleVector_mul(y, x, n) {           \
-    long i;                                     \
+    size_t i;                                     \
     for (i=0; i<=((n)-8); i+=8) {               \
       __m128d XMM0 = _mm_loadu_pd((x)+i  );     \
       __m128d XMM1 = _mm_loadu_pd((x)+i+2);     \
@@ -120,16 +120,16 @@
       _mm_storeu_pd((y)+i+4, XMM6);             \
       _mm_storeu_pd((y)+i+6, XMM7);             \
     }                                           \
-    long off = (n) - ((n)%8);                   \
+    size_t off = (n) - ((n)%8);                   \
     for (i=0; i<((n)%8); i++) {                 \
       y[off+i] *= x[off+i];                     \
     }                                           \
   }
 
 #define THFloatVector_fill(x, c, n) {           \
-    long i;                                     \
+    size_t i;                                     \
     __m128 XMM0 = _mm_set_ps1(c);               \
-    long off;                                   \
+    size_t off;                                   \
     for (i=0; i<=((n)-16); i+=16) {             \
       _mm_storeu_ps((x)+i  ,  XMM0);            \
       _mm_storeu_ps((x)+i+4,  XMM0);            \
@@ -143,7 +143,7 @@
   }
 
 #define THFloatVector_add(y, x, c, n) {         \
-    long i = 0;                                 \
+    size_t i = 0;                                 \
     __m128 XMM7 = _mm_set_ps1(c);               \
     __m128 XMM0,XMM2;                           \
     for (; i<=((n)-4); i+=4) {                  \
@@ -159,7 +159,7 @@
   }
 
 #define THFloatVector_diff(z, x, y, n) {        \
-    long i;                                     \
+    size_t i;                                     \
     for (i=0; i<=((n)-16); i+=16) {             \
       __m128 XMM0 = _mm_loadu_ps((x)+i   );     \
       __m128 XMM1 = _mm_loadu_ps((x)+i+ 4);     \
@@ -178,14 +178,14 @@
       _mm_storeu_ps((z)+i+ 8, XMM2);            \
       _mm_storeu_ps((z)+i+12, XMM3);            \
     }                                           \
-    long off = (n) - ((n)%16);                  \
+    size_t off = (n) - ((n)%16);                  \
     for (i=0; i<((n)%16); i++) {                \
       z[off+i] = x[off+i] - y[off+i];           \
     }                                           \
   }
 
 #define THFloatVector_scale(y, c, n) {          \
-    long i;                                     \
+    size_t i;                                     \
     __m128 XMM7 = _mm_set_ps1(c);               \
     for (i=0; i<=((n)-8); i+=8) {               \
       __m128 XMM0 = _mm_loadu_ps((y)+i  );      \
@@ -195,14 +195,14 @@
       _mm_storeu_ps((y)+i  , XMM0);             \
       _mm_storeu_ps((y)+i+4, XMM1);             \
     }                                           \
-    long off = (n) - ((n)%8);                   \
+    size_t off = (n) - ((n)%8);                   \
     for (i=0; i<((n)%8); i++) {                 \
       y[off+i] *= c;                            \
     }                                           \
   }
 
 #define THFloatVector_mul(y, x, n) {            \
-    long i;                                     \
+    size_t i;                                     \
     for (i=0; i<=((n)-16); i+=16) {             \
       __m128 XMM0 = _mm_loadu_ps((x)+i   );     \
       __m128 XMM1 = _mm_loadu_ps((x)+i+ 4);     \
@@ -221,7 +221,7 @@
       _mm_storeu_ps((y)+i+ 8, XMM6);            \
       _mm_storeu_ps((y)+i+12, XMM7);            \
     }                                           \
-    long off = (n) - ((n)%16);                  \
+    size_t off = (n) - ((n)%16);                  \
     for (i=0; i<((n)%16); i++) {                \
       y[off+i] *= x[off+i];                     \
     }                                           \
@@ -479,8 +479,8 @@
             );                                                          \
     }
 
-static inline void THDoubleVector_fill(double *x, const double c, const long n) {
-  long i = 0;
+static inline void THDoubleVector_fill(double *x, const double c, const size_t n) {
+  size_t i = 0;
 
   for(; i < n-4; i += 4)
   {
@@ -494,9 +494,9 @@ static inline void THDoubleVector_fill(double *x, const double c, const long n) 
     x[i] = c;
 }
 
-static inline void THDoubleVector_add(double *y, const double *x, const double c, const long n)
+static inline void THDoubleVector_add(double *y, const double *x, const double c, const size_t n)
 {
-  long i = 0;
+  size_t i = 0;
 
   for(;i < n-4; i += 4)
   {
@@ -510,9 +510,9 @@ static inline void THDoubleVector_add(double *y, const double *x, const double c
     y[i] += c * x[i];
 }
 
-static inline void THDoubleVector_diff(double *z, const double *x, const double *y, const long n)
+static inline void THDoubleVector_diff(double *z, const double *x, const double *y, const size_t n)
 {
-  long i = 0;
+  size_t i = 0;
 
   for(; i < n-4; i += 4)
   {
@@ -526,9 +526,9 @@ static inline void THDoubleVector_diff(double *z, const double *x, const double 
     z[i] = x[i] - y[i];
 }
 
-static inline void THDoubleVector_scale(double *y, const double c, const long n)
+static inline void THDoubleVector_scale(double *y, const double c, const size_t n)
 {
-  long i = 0;
+  size_t i = 0;
 
   for(; i < n-4; i +=4)
   {
@@ -542,9 +542,9 @@ static inline void THDoubleVector_scale(double *y, const double c, const long n)
     y[i] *= c;
 }
 
-static inline void THDoubleVector_mul(double *y, const double *x, const long n)
+static inline void THDoubleVector_mul(double *y, const double *x, const size_t n)
 {
-  long i = 0;
+  size_t i = 0;
 
   for(; i < n-4; i += 4)
   {

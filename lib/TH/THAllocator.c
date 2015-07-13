@@ -14,11 +14,11 @@
 #endif
 /* end of stuff for mapped files */
 
-static void *THDefaultAllocator_alloc(void* ctx, long size) {
+static void *THDefaultAllocator_alloc(void* ctx, size_t size) {
   return THAlloc(size);
 }
 
-static void *THDefaultAllocator_realloc(void* ctx, void* ptr, long size) {
+static void *THDefaultAllocator_realloc(void* ctx, void* ptr, size_t size) {
   return THRealloc(ptr, size);
 }
 
@@ -37,7 +37,7 @@ THAllocator THDefaultAllocator = {
 struct THMapAllocatorContext_ {
   char *filename; /* file name */
   int shared; /* is shared or not */
-  long size; /* mapped size */
+  size_t size; /* mapped size */
 };
 
 THMapAllocatorContext *THMapAllocatorContext_new(const char *filename, int shared)
@@ -52,7 +52,7 @@ THMapAllocatorContext *THMapAllocatorContext_new(const char *filename, int share
   return ctx;
 }
 
-long THMapAllocatorContext_size(THMapAllocatorContext *ctx)
+size_t THMapAllocatorContext_size(THMapAllocatorContext *ctx)
 {
   return ctx->size;
 }
@@ -63,7 +63,7 @@ void THMapAllocatorContext_free(THMapAllocatorContext *ctx)
   THFree(ctx);
 }
 
-static void *THMapAllocator_alloc(void* ctx_, long size)
+static void *THMapAllocator_alloc(void* ctx_, size_t size)
 {
   THMapAllocatorContext *ctx = ctx_;
   void *data = NULL;
@@ -168,7 +168,7 @@ static void *THMapAllocator_alloc(void* ctx_, long size)
   {
     /* open file */
     int fd;
-    long fdsz;
+    size_t fdsz;
 
     if(ctx->shared)
     {
@@ -231,7 +231,7 @@ static void *THMapAllocator_alloc(void* ctx_, long size)
   return data;
 }
 
-static void *THMapAllocator_realloc(void* ctx, void* ptr, long size) {
+static void *THMapAllocator_realloc(void* ctx, void* ptr, size_t size) {
   THError("cannot realloc mapped data");
   return NULL;
 }
@@ -261,12 +261,12 @@ void THMapAllocatorContext_free(THMapAllocatorContext *ctx) {
   THError("file mapping not supported on your system");
 }
 
-static void *THMapAllocator_alloc(void* ctx_, long size) {
+static void *THMapAllocator_alloc(void* ctx_, size_t size) {
   THError("file mapping not supported on your system");
   return NULL;
 }
 
-static void *THMapAllocator_realloc(void* ctx, void* ptr, long size) {
+static void *THMapAllocator_realloc(void* ctx, void* ptr, size_t size) {
   THError("file mapping not supported on your system");
   return NULL;
 }

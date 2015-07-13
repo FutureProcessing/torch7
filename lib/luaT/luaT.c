@@ -3,15 +3,15 @@
 
 #include "luaT.h"
 
-void* luaT_alloc(lua_State *L, long size)
+void* luaT_alloc(lua_State *L, size_t size)
 {
   void *ptr;
 
   if(size == 0)
     return NULL;
 
-  if(size < 0)
-    luaL_error(L, "$ Torch: invalid memory size -- maybe an overflow?");
+  if (size > 0x10000000000) /* > 1Tb */
+    luaL_error(L, "$ Torch: invalid memory size (> 1 Tb) -- maybe an overflow?");
 
   ptr = malloc(size);
   if(!ptr)
@@ -20,7 +20,7 @@ void* luaT_alloc(lua_State *L, long size)
   return ptr;
 }
 
-void* luaT_realloc(lua_State *L, void *ptr, long size)
+void* luaT_realloc(lua_State *L, void *ptr, size_t size)
 {
   if(!ptr)
     return(luaT_alloc(L, size));
@@ -31,8 +31,8 @@ void* luaT_realloc(lua_State *L, void *ptr, long size)
     return NULL;
   }
 
-  if(size < 0)
-    luaL_error(L, "$ Torch: invalid memory size -- maybe an overflow?");
+  if (size > 0x10000000000) /* > 1 Tb */
+    luaL_error(L, "$ Torch: invalid memory size (> 1 Tb) -- maybe an overflow?");
 
   ptr = realloc(ptr, size);
   if(!ptr)
@@ -85,11 +85,11 @@ void luaT_stackdump(lua_State *L)
         break;
       case LUA_TUSERDATA:
         tname = luaT_typename(L, i);
-        printf("userdata %lx [%s]", (long)lua_topointer(L, i), (tname ? tname : "not a Torch object"));
+        printf("userdata %lx [%s]", (size_t)lua_topointer(L, i), (tname ? tname : "not a Torch object"));
         break;
       case 10:
         tname = luaT_typename(L, i);
-        printf("cdata %lx [%s]", (long)lua_topointer(L, i), (tname ? tname : "not a Torch object"));
+        printf("cdata %lx [%s]", (size_t)lua_topointer(L, i), (tname ? tname : "not a Torch object"));
         break;
       case LUA_TTABLE:
         lua_pushvalue(L, i);
@@ -104,7 +104,7 @@ void luaT_stackdump(lua_State *L)
         else
         {
           tname = luaT_typename(L, i);
-          printf("table %lx [%s]", (long)lua_topointer(L, i), (tname ? tname : "not a Torch object"));
+          printf("table %lx [%s]", (size_t)lua_topointer(L, i), (tname ? tname : "not a Torch object"));
         }
         break;
       default:
@@ -753,7 +753,7 @@ int luaT_lua_pushudata(lua_State *L)
   else if(luaT_iscdata(L, 1))
     udata = ((void**)lua_topointer(L, 1))[4];
   else if(lua_isnumber(L, 1))
-    udata = (void*)(long)lua_tonumber(L, 1);
+    udata = (void*)(size_t)lua_tonumber(L, 1);
   else
     luaL_argerror(L, 1, "expecting number or cdata");
 
@@ -831,13 +831,13 @@ int luaT_lua_pointer(lua_State *L)
     /* we want the pointer holded by cdata */
     /* not the pointer on the cdata object */
     const void* ptr = *((void**)lua_topointer(L, 1));
-    lua_pushnumber(L, (long)(ptr));
+    lua_pushnumber(L, (size_t)(ptr));
     return 1;
   }
   else if (luaT_iscdata(L, 1)) /* luaffi cdata */
   {
     void** ptr = (void**)lua_touserdata(L, 1);
-    lua_pushnumber(L, (long)(ptr[4]));
+    lua_pushnumber(L, (size_t)(ptr[4]));
     return 1;
   }
   else if(lua_isuserdata(L, 1))
@@ -845,19 +845,19 @@ int luaT_lua_pointer(lua_State *L)
     void **ptr;
     luaL_argcheck(L, luaT_typename(L, 1), 1, "Torch object expected");
     ptr = lua_touserdata(L, 1);
-    lua_pushnumber(L, (long)(*ptr));
+    lua_pushnumber(L, (size_t)(*ptr));
     return 1;
   }
   else if(lua_istable(L, 1) || lua_isthread(L, 1) || lua_isfunction(L, 1))
   {
     const void* ptr = lua_topointer(L, 1);
-    lua_pushnumber(L, (long)(ptr));
+    lua_pushnumber(L, (size_t)(ptr));
     return 1;
   }
   else if(lua_isstring(L, 1))
   {
     const char* ptr = lua_tostring(L, 1);
-    lua_pushnumber(L, (long)(ptr));
+    lua_pushnumber(L, (size_t)(ptr));
     return 1;
   }
   else

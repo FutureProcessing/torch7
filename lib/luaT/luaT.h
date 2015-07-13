@@ -47,8 +47,8 @@ static int luaL_typerror(lua_State *L, int narg, const char *tname)
 
 /* C functions */
 
-LUAT_API void* luaT_alloc(lua_State *L, long size);
-LUAT_API void* luaT_realloc(lua_State *L, void *ptr, long size);
+LUAT_API void* luaT_alloc(lua_State *L, size_t size);
+LUAT_API void* luaT_realloc(lua_State *L, void *ptr, size_t size);
 LUAT_API void luaT_free(lua_State *L, void *ptr);
 
 LUAT_API void luaT_setfuncs(lua_State *L, const luaL_Reg *l, int nup);

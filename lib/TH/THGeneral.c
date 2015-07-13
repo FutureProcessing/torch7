@@ -91,12 +91,12 @@ void THSetArgErrorHandler( void (*torchArgErrorHandlerFunction_)(int argNumber, 
   torchArgErrorHandlerData = data;
 }
 
-void* THAlloc(long size)
+void* THAlloc(size_t size)
 {
   void *ptr;
 
-  if(size < 0)
-    THError("$ Torch: invalid memory size -- maybe an overflow?");
+  if (size > 0x10000000000) /* > 1Tb */
+    THError("$ Torch: invalid memory size (> 1 Tb) -- maybe an overflow?");
 
   if(size == 0)
     return NULL;
@@ -125,7 +125,7 @@ void* THAlloc(long size)
   return ptr;
 }
 
-void* THRealloc(void *ptr, long size)
+void* THRealloc(void *ptr, size_t size)
 {
   if(!ptr)
     return(THAlloc(size));
@@ -136,8 +136,8 @@ void* THRealloc(void *ptr, long size)
     return NULL;
   }
 
-  if(size < 0)
-    THError("$ Torch: invalid memory size -- maybe an overflow?");
+  if (size > 0x10000000000) /* > 1Tb */
+    THError("$ Torch: invalid memory size (> 1 Tb) -- maybe an overflow?");
 
   ptr = realloc(ptr, size);
   if(!ptr)
