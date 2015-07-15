@@ -1,8 +1,8 @@
-package = "torch"
+package = "torch64"
 version = "scm-1"
 
 source = {
-   url = "git://github.com/torch/torch7.git",
+   url = "git://github.com/torch/torch7.git --branch x64",
 }
 
 description = {
