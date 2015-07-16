@@ -6,8 +6,8 @@
 /* Custom allocator
  */
 typedef struct THAllocator {
-  void* (*malloc)(void*, size_t);
-  void* (*realloc)(void*, void*, size_t);
+  void* (*malloc)(void*, LONG_PTR);
+  void* (*realloc)(void*, void*, LONG_PTR);
   void (*free)(void*, void*);
 } THAllocator;
 
@@ -20,7 +20,7 @@ extern THAllocator THDefaultAllocator;
  */
 typedef struct THMapAllocatorContext_  THMapAllocatorContext;
 THMapAllocatorContext *THMapAllocatorContext_new(const char *filename, int shared);
-size_t THMapAllocatorContext_size(THMapAllocatorContext *ctx);
+LONG_PTR THMapAllocatorContext_size(THMapAllocatorContext *ctx);
 void THMapAllocatorContext_free(THMapAllocatorContext *ctx);
 
 extern THAllocator THMapAllocator;

@@ -13,7 +13,7 @@ void THTensor_(random)(THTensor *self, THGenerator *_generator)
 #elif defined(TH_REAL_IS_INT)
   TH_TENSOR_APPLY(real, self, *self_data = (int)(THRandom_random(_generator) % (INT_MAX+1UL)););
 #elif defined(TH_REAL_IS_LONG)
-  TH_TENSOR_APPLY(real, self, *self_data = (long)(THRandom_random(_generator) % (LONG_MAX+1UL)););
+  TH_TENSOR_APPLY(real, self, *self_data = (LONG_PTR)(THRandom_random(_generator) % (LONG_MAX+1UL)););
 #elif defined(TH_REAL_IS_FLOAT)
   TH_TENSOR_APPLY(real, self, *self_data = (float)(THRandom_random(_generator) % ((1UL << FLT_MANT_DIG)+1)););
 #elif defined(TH_REAL_IS_DOUBLE)
@@ -63,8 +63,8 @@ void THTensor_(logNormal)(THTensor *self, THGenerator *_generator, double mean, 
 void THTensor_(multinomial)(THLongTensor *self, THGenerator *_generator, THTensor *prob_dist, int n_sample, int with_replacement)
 {
   int start_dim = THTensor_(nDimension)(prob_dist);
-  long n_dist;
-  long n_categories;
+  LONG_PTR n_dist;
+  LONG_PTR n_categories;
   THTensor* cum_dist;
   int i,j,k;
 
@@ -213,7 +213,7 @@ void THTensor_(multinomial)(THLongTensor *self, THGenerator *_generator, THTenso
 #if defined(TH_REAL_IS_BYTE)
 void THTensor_(getRNGState)(THGenerator *_generator, THTensor *self)
 {
-  static const size_t size = sizeof(THGenerator);
+  static const LONG_PTR size = sizeof(THGenerator);
   THGenerator *rng_state;
   THTensor_(resize1d)(self, size);
   THArgCheck(THTensor_(nElement)(self) == size, 1, "RNG state is wrong size");
@@ -224,7 +224,7 @@ void THTensor_(getRNGState)(THGenerator *_generator, THTensor *self)
 
 void THTensor_(setRNGState)(THGenerator *_generator, THTensor *self)
 {
-  static const size_t size = sizeof(THGenerator);
+  static const LONG_PTR size = sizeof(THGenerator);
   THGenerator *rng_state;
   THArgCheck(THTensor_(nElement)(self) == size, 1, "RNG state is wrong size");
   THArgCheck(THTensor_(isContiguous)(self), 1, "RNG state needs to be contiguous");

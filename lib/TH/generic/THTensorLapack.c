@@ -88,7 +88,7 @@ void THTensor_(gesv)(THTensor *rb_, THTensor *ra_, THTensor *b, THTensor *a)
   lda  = n;
   ldb  = n;
 
-  ipiv = THIntTensor_newWithSize1d((long)n);
+  ipiv = THIntTensor_newWithSize1d((LONG_PTR)n);
   THLapack_(gesv)(n, nrhs, 
 		  THTensor_(data)(ra__), lda, THIntTensor_data(ipiv),
 		  THTensor_(data)(rb__), ldb, &info);
@@ -223,7 +223,7 @@ void THTensor_(geev)(THTensor *re_, THTensor *rv_, THTensor *a_, const char *job
   THTensor *work, *wi, *wr, *a;
   real wkopt;
   real *rv_data;
-  long i;
+  LONG_PTR i;
 
   THArgCheck(a_->nDimension == 2, 3, "A should be 2 dimensional");
   THArgCheck(a_->size[0] == a_->size[1], 3,"A should be square");
@@ -467,7 +467,7 @@ void THTensor_(getri)(THTensor *ra_, THTensor *a)
   n = ra__->size[1];
   THArgCheck(m == n, 2, "A should be square");
   lda = m;
-  ipiv = THIntTensor_newWithSize1d((long)m);
+  ipiv = THIntTensor_newWithSize1d((LONG_PTR)m);
 
   /* Run LU */
   THLapack_(getrf)(n, n, THTensor_(data)(ra__), lda, THIntTensor_data(ipiv), &info);
@@ -548,7 +548,7 @@ void THTensor_(potrf)(THTensor *ra_, THTensor *a)
   /* Build full upper-triangular matrix */
   {
     real *p = THTensor_(data)(ra__);
-    long i,j;
+    LONG_PTR i,j;
     for (i=0; i<n; i++) {
       for (j=i+1; j<n; j++) {
         p[i*n+j] = 0;
@@ -619,7 +619,7 @@ void THTensor_(potri)(THTensor *ra_, THTensor *a)
   /* Build full matrix */
   {
     real *p = THTensor_(data)(ra__);
-    long i,j;
+    LONG_PTR i,j;
     for (i=0; i<n; i++) {
       for (j=i+1; j<n; j++) {
         p[i*n+j] = p[j*n+i];

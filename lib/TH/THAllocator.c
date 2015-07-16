@@ -14,11 +14,11 @@
 #endif
 /* end of stuff for mapped files */
 
-static void *THDefaultAllocator_alloc(void* ctx, size_t size) {
+static void *THDefaultAllocator_alloc(void* ctx, LONG_PTR size) {
   return THAlloc(size);
 }
 
-static void *THDefaultAllocator_realloc(void* ctx, void* ptr, size_t size) {
+static void *THDefaultAllocator_realloc(void* ctx, void* ptr, LONG_PTR size) {
   return THRealloc(ptr, size);
 }
 
@@ -37,7 +37,7 @@ THAllocator THDefaultAllocator = {
 struct THMapAllocatorContext_ {
   char *filename; /* file name */
   int shared; /* is shared or not */
-  size_t size; /* mapped size */
+  LONG_PTR size; /* mapped size */
 };
 
 THMapAllocatorContext *THMapAllocatorContext_new(const char *filename, int shared)
@@ -52,7 +52,7 @@ THMapAllocatorContext *THMapAllocatorContext_new(const char *filename, int share
   return ctx;
 }
 
-size_t THMapAllocatorContext_size(THMapAllocatorContext *ctx)
+LONG_PTR THMapAllocatorContext_size(THMapAllocatorContext *ctx)
 {
   return ctx->size;
 }
@@ -63,7 +63,7 @@ void THMapAllocatorContext_free(THMapAllocatorContext *ctx)
   THFree(ctx);
 }
 
-static void *THMapAllocator_alloc(void* ctx_, size_t size)
+static void *THMapAllocator_alloc(void* ctx_, LONG_PTR size)
 {
   THMapAllocatorContext *ctx = ctx_;
   void *data = NULL;
@@ -73,7 +73,7 @@ static void *THMapAllocator_alloc(void* ctx_, size_t size)
     HANDLE hfile;
     HANDLE hmfile;
     DWORD size_hi, size_lo;
-    size_t hfilesz;
+    LONG_PTR hfilesz;
 
     /* open file */
     /* FILE_FLAG_RANDOM_ACCESS ? */
@@ -91,13 +91,13 @@ static void *THMapAllocator_alloc(void* ctx_, size_t size)
     }
 
     size_lo = GetFileSize(hfile, &size_hi);
-    if(sizeof(size_t) > 4)
+    if(sizeof(LONG_PTR) > 4)
     {
-      hfilesz = ((size_t)size_hi) << 32;
+      hfilesz = ((LONG_PTR)size_hi) << 32;
       hfilesz |= size_lo;
     }
     else
-      hfilesz = (size_t)(size_lo);
+      hfilesz = (LONG_PTR)(size_lo);
 
     if(size > 0)
     {
@@ -168,7 +168,7 @@ static void *THMapAllocator_alloc(void* ctx_, size_t size)
   {
     /* open file */
     int fd;
-    size_t fdsz;
+    LONG_PTR fdsz;
 
     if(ctx->shared)
     {
@@ -231,7 +231,7 @@ static void *THMapAllocator_alloc(void* ctx_, size_t size)
   return data;
 }
 
-static void *THMapAllocator_realloc(void* ctx, void* ptr, size_t size) {
+static void *THMapAllocator_realloc(void* ctx, void* ptr, LONG_PTR size) {
   THError("cannot realloc mapped data");
   return NULL;
 }
@@ -261,12 +261,12 @@ void THMapAllocatorContext_free(THMapAllocatorContext *ctx) {
   THError("file mapping not supported on your system");
 }
 
-static void *THMapAllocator_alloc(void* ctx_, size_t size) {
+static void *THMapAllocator_alloc(void* ctx_, LONG_PTR size) {
   THError("file mapping not supported on your system");
   return NULL;
 }
 
-static void *THMapAllocator_realloc(void* ctx, void* ptr, size_t size) {
+static void *THMapAllocator_realloc(void* ctx, void* ptr, LONG_PTR size) {
   THError("file mapping not supported on your system");
   return NULL;
 }

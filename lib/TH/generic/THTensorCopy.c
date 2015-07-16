@@ -17,7 +17,7 @@ IMPLEMENT_THTensor_COPY(Byte, unsigned char)
 IMPLEMENT_THTensor_COPY(Char, char)
 IMPLEMENT_THTensor_COPY(Short, short)
 IMPLEMENT_THTensor_COPY(Int, int)
-IMPLEMENT_THTensor_COPY(Long, long)
+IMPLEMENT_THTensor_COPY(Long, LONG_PTR)
 IMPLEMENT_THTensor_COPY(Float, float)
 IMPLEMENT_THTensor_COPY(Double, double)
 

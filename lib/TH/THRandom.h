@@ -8,11 +8,11 @@
 /* A THGenerator contains all the state required for a single random number stream */
 typedef struct THGenerator {
   /* The initial seed. */
-  size_t the_initial_seed;
+  LONG_PTR the_initial_seed;
   int left;  /* = 1; */
   int seeded; /* = 0; */
-  size_t next;
-  size_t state[_MERSENNE_STATE_N]; /* the array for the state vector  */
+  LONG_PTR next;
+  LONG_PTR state[_MERSENNE_STATE_N]; /* the array for the state vector  */
   /********************************/
 
   /* For normal distribution */
@@ -34,16 +34,16 @@ TH_API int THGenerator_isValid(THGenerator *_generator);
 
 /* Initializes the random number generator from /dev/urandom (or on Windows
 platforms with the current time (granularity: seconds)) and returns the seed. */
-TH_API size_t THRandom_seed(THGenerator *_generator);
+TH_API LONG_PTR THRandom_seed(THGenerator *_generator);
 
-/* Initializes the random number generator with the given size_t "the_seed_". */
-TH_API void THRandom_manualSeed(THGenerator *_generator, size_t the_seed_);
+/* Initializes the random number generator with the given LONG_PTR "the_seed_". */
+TH_API void THRandom_manualSeed(THGenerator *_generator, LONG_PTR the_seed_);
 
 /* Returns the starting seed used. */
-TH_API size_t THRandom_initialSeed(THGenerator *_generator);
+TH_API LONG_PTR THRandom_initialSeed(THGenerator *_generator);
 
 /* Generates a uniform 32 bits integer. */
-TH_API size_t THRandom_random(THGenerator *_generator);
+TH_API LONG_PTR THRandom_random(THGenerator *_generator);
 
 /* Generates a uniform random number on [0,1[. */
 TH_API double THRandom_uniform(THGenerator *_generator, double a, double b);

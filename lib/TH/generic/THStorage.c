@@ -7,7 +7,7 @@ real* THStorage_(data)(const THStorage *self)
   return self->data;
 }
 
-long THStorage_(size)(const THStorage *self)
+LONG_PTR THStorage_(size)(const THStorage *self)
 {
   return self->size;
 }
@@ -22,12 +22,12 @@ THStorage* THStorage_(new)(void)
   return THStorage_(newWithSize)(0);
 }
 
-THStorage* THStorage_(newWithSize)(long size)
+THStorage* THStorage_(newWithSize)(LONG_PTR size)
 {
   return THStorage_(newWithAllocator)(size, &THDefaultAllocator, NULL);
 }
 
-THStorage* THStorage_(newWithAllocator)(long size,
+THStorage* THStorage_(newWithAllocator)(LONG_PTR size,
                                         THAllocator *allocator,
                                         void *allocatorContext)
 {
@@ -41,7 +41,7 @@ THStorage* THStorage_(newWithAllocator)(long size,
   return storage;
 }
 
-THStorage* THStorage_(newWithMapping)(const char *filename, long size, int shared)
+THStorage* THStorage_(newWithMapping)(const char *filename, LONG_PTR size, int shared)
 {
   THMapAllocatorContext *ctx = THMapAllocatorContext_new(filename, shared);
 
@@ -127,13 +127,13 @@ void THStorage_(free)(THStorage *storage)
   }
 }
 
-THStorage* THStorage_(newWithData)(real *data, long size)
+THStorage* THStorage_(newWithData)(real *data, LONG_PTR size)
 {
   return THStorage_(newWithDataAndAllocator)(data, size,
                                              &THDefaultAllocator, NULL);
 }
 
-THStorage* THStorage_(newWithDataAndAllocator)(real* data, long size,
+THStorage* THStorage_(newWithDataAndAllocator)(real* data, LONG_PTR size,
                                                THAllocator* allocator,
                                                void* allocatorContext) {
   THStorage *storage = THAlloc(sizeof(THStorage));
@@ -146,7 +146,7 @@ THStorage* THStorage_(newWithDataAndAllocator)(real* data, long size,
   return storage;
 }
 
-void THStorage_(resize)(THStorage *storage, long size)
+void THStorage_(resize)(THStorage *storage, LONG_PTR size)
 {
   if(storage->flag & TH_STORAGE_RESIZABLE)
   {
@@ -160,18 +160,18 @@ void THStorage_(resize)(THStorage *storage, long size)
 
 void THStorage_(fill)(THStorage *storage, real value)
 {
-  long i;
+  LONG_PTR i;
   for(i = 0; i < storage->size; i++)
     storage->data[i] = value;
 }
 
-void THStorage_(set)(THStorage *self, long idx, real value)
+void THStorage_(set)(THStorage *self, LONG_PTR idx, real value)
 {
   THArgCheck((idx >= 0) && (idx < self->size), 2, "out of bounds");
   self->data[idx] = value;
 }
 
-real THStorage_(get)(const THStorage *self, long idx)
+real THStorage_(get)(const THStorage *self, LONG_PTR idx)
 {
   THArgCheck((idx >= 0) && (idx < self->size), 2, "out of bounds");
   return self->data[idx];

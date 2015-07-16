@@ -38,7 +38,7 @@ IMPLEMENT_TORCH_FILE_FUNC(synchronize)
 static int torch_File_seek(lua_State *L)
 {
   THFile *self = luaT_checkudata(L, 1, "torch.File");
-  size_t position = luaL_checklong(L, 2)-1;
+  LONG_PTR position = luaL_checklong(L, 2)-1;
   THFile_seek(self, position);
   lua_settop(L, 1);
   return 1;
@@ -70,8 +70,8 @@ IMPLEMENT_TORCH_FILE_FUNC(close)
     {                                                                   \
       if(lua_isnumber(L, 2))                                            \
       {                                                                 \
-        size_t size = lua_tonumber(L, 2);                                 \
-        size_t nread;                                                     \
+        LONG_PTR size = lua_tonumber(L, 2);                                 \
+        LONG_PTR nread;                                                     \
                                                                         \
         TH##TYPEC##Storage *storage = TH##TYPEC##Storage_newWithSize(size); \
         luaT_pushudata(L, storage, "torch." #TYPEC "Storage");          \
@@ -122,7 +122,7 @@ IMPLEMENT_TORCH_FILE_RW(Byte, unsigned char)
 IMPLEMENT_TORCH_FILE_RW(Char, char)
 IMPLEMENT_TORCH_FILE_RW(Short, short)
 IMPLEMENT_TORCH_FILE_RW(Int, int)
-IMPLEMENT_TORCH_FILE_RW(Long, size_t)
+IMPLEMENT_TORCH_FILE_RW(Long, LONG_PTR)
 IMPLEMENT_TORCH_FILE_RW(Float, float)
 IMPLEMENT_TORCH_FILE_RW(Double, double)
 
@@ -131,7 +131,7 @@ static int torch_File_readString(lua_State *L)
   THFile *self = luaT_checkudata(L, 1, "torch.File");
   const char *format = luaL_checkstring(L, 2);
   char *str;
-  size_t size;
+  LONG_PTR size;
 
   size = THFile_readStringRaw(self, format, &str);
   lua_pushlstring(L, str, size);
@@ -144,11 +144,11 @@ static int torch_File_writeString(lua_State *L)
 {
   THFile *self = luaT_checkudata(L, 1, "torch.File");
   const char *str = NULL;
-  size_t size;
+  LONG_PTR size;
 
   luaL_checktype(L, 2, LUA_TSTRING);
   str = lua_tolstring(L, 2, &size);
-  lua_pushnumber(L, THFile_writeStringRaw(self, str, (size_t)size));
+  lua_pushnumber(L, THFile_writeStringRaw(self, str, (LONG_PTR)size));
   return 1;
 }
 

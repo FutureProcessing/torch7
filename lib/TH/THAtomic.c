@@ -4,6 +4,7 @@
   Note: I thank Leon Bottou for his useful comments.
   Ronan.
 */
+#define USE_MSC_ATOMICS 1
 
 #if defined(USE_C11_ATOMICS)
 #include <stdatomic.h>
@@ -23,7 +24,7 @@ void THAtomicSet(int volatile *a, int newvalue)
 #if defined(USE_C11_ATOMICS)
   atomic_store(a, newvalue);
 #elif defined(USE_MSC_ATOMICS)
-  _InterlockedExchange((size_t*)a, newvalue);
+  _InterlockedExchange((LONG_PTR*)a, newvalue);
 #elif defined(USE_GCC_ATOMICS)
   __sync_lock_test_and_set(a, newvalue);
 #else
@@ -52,7 +53,7 @@ int THAtomicAdd(int volatile *a, int value)
 #if defined(USE_C11_ATOMICS)
   return atomic_fetch_add(a, value);
 #elif defined(USE_MSC_ATOMICS)
-  return _InterlockedExchangeAdd((size_t*)a, value);
+  return _InterlockedExchangeAdd((LONG_PTR*)a, value);
 #elif defined(USE_GCC_ATOMICS)
   return __sync_fetch_and_add(a, value);
 #else

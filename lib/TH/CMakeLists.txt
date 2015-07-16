@@ -125,7 +125,7 @@ IF(NOT HAS_C11_ATOMICS)
 #include <intrin.h>
 int main()
 {
-  size_t a;
+  LONG_PTR a;
   _InterlockedExchange(&a, 1);
   _InterlockedExchangeAdd(&a, 1);
   if(_InterlockedCompareExchange(&a, 3, 2) != 2)

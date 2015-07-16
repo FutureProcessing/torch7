@@ -50,14 +50,14 @@ int THGenerator_isValid(THGenerator *_generator)
 }
 
 #ifndef _WIN32
-static size_t readURandomLong()
+static LONG_PTR readURandomLong()
 {
   int randDev = open("/dev/urandom", O_RDONLY);
-  size_t randValue;
+  LONG_PTR randValue;
   if (randDev < 0) {
     THError("Unable to open /dev/urandom");
   }
-  ssize_t readBytes = read(randDev, &randValue, sizeof(randValue));
+  s_Long readBytes = read(randDev, &randValue, sizeof(randValue));
   if (readBytes < sizeof(randValue)) {
     THError("Unable to read from /dev/urandom");
   }
@@ -66,12 +66,12 @@ static size_t readURandomLong()
 }
 #endif // _WIN32
 
- size_t THRandom_seed(THGenerator *_generator)
+ LONG_PTR THRandom_seed(THGenerator *_generator)
 {
 #ifdef _WIN32
-   size_t s = (size_t)time(0);
+   LONG_PTR s = (LONG_PTR)time(0);
 #else
-   size_t s = readURandomLong();
+   LONG_PTR s = readURandomLong();
 #endif
   THRandom_manualSeed(_generator, s);
   return s;
@@ -137,7 +137,7 @@ static size_t readURandomLong()
 #define TWIST(u,v) ((MIXBITS(u,v) >> 1) ^ ((v)&1UL ? MATRIX_A : 0UL))
 /*********************************************************** That's it. */
 
-void THRandom_manualSeed(THGenerator *_generator, size_t the_seed_)
+void THRandom_manualSeed(THGenerator *_generator, LONG_PTR the_seed_)
 {
   int j;
 
@@ -161,14 +161,14 @@ void THRandom_manualSeed(THGenerator *_generator, size_t the_seed_)
   _generator->seeded = 1;
 }
 
-size_t THRandom_initialSeed(THGenerator *_generator)
+LONG_PTR THRandom_initialSeed(THGenerator *_generator)
 {
   return _generator->the_initial_seed;
 }
 
 void THRandom_nextState(THGenerator *_generator)
 {
-  size_t *p = _generator->state;
+  LONG_PTR *p = _generator->state;
   int j;
 
   _generator->left = n;
@@ -183,9 +183,9 @@ void THRandom_nextState(THGenerator *_generator)
   *p = p[m-n] ^ TWIST(p[0], _generator->state[0]);
 }
 
-size_t THRandom_random(THGenerator *_generator)
+LONG_PTR THRandom_random(THGenerator *_generator)
 {
-  size_t y;
+  LONG_PTR y;
 
   if (--(_generator->left) == 0)
     THRandom_nextState(_generator);

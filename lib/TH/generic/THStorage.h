@@ -24,7 +24,7 @@
 typedef struct THStorage
 {
     real *data;
-    long size;
+    LONG_PTR size;
     int refcount;
     char flag;
     THAllocator *allocator;
@@ -33,29 +33,29 @@ typedef struct THStorage
 } THStorage;
 
 TH_API real* THStorage_(data)(const THStorage*);
-TH_API long THStorage_(size)(const THStorage*);
+TH_API LONG_PTR THStorage_(size)(const THStorage*);
 TH_API int THStorage_(elementSize)();
 
 /* slow access -- checks everything */
-TH_API void THStorage_(set)(THStorage*, long, real);
-TH_API real THStorage_(get)(const THStorage*, long);
+TH_API void THStorage_(set)(THStorage*, LONG_PTR, real);
+TH_API real THStorage_(get)(const THStorage*, LONG_PTR);
 
 TH_API THStorage* THStorage_(new)(void);
-TH_API THStorage* THStorage_(newWithSize)(long size);
+TH_API THStorage* THStorage_(newWithSize)(LONG_PTR size);
 TH_API THStorage* THStorage_(newWithSize1)(real);
 TH_API THStorage* THStorage_(newWithSize2)(real, real);
 TH_API THStorage* THStorage_(newWithSize3)(real, real, real);
 TH_API THStorage* THStorage_(newWithSize4)(real, real, real, real);
-TH_API THStorage* THStorage_(newWithMapping)(const char *filename, long size, int shared);
+TH_API THStorage* THStorage_(newWithMapping)(const char *filename, LONG_PTR size, int shared);
 
 /* takes ownership of data */
-TH_API THStorage* THStorage_(newWithData)(real *data, long size);
+TH_API THStorage* THStorage_(newWithData)(real *data, LONG_PTR size);
 
-TH_API THStorage* THStorage_(newWithAllocator)(long size,
+TH_API THStorage* THStorage_(newWithAllocator)(LONG_PTR size,
                                                THAllocator* allocator,
                                                void *allocatorContext);
 TH_API THStorage* THStorage_(newWithDataAndAllocator)(
-    real* data, long size, THAllocator* allocator, void *allocatorContext);
+    real* data, LONG_PTR size, THAllocator* allocator, void *allocatorContext);
 
 /* should not differ with API */
 TH_API void THStorage_(setFlag)(THStorage *storage, const char flag);
@@ -64,7 +64,7 @@ TH_API void THStorage_(retain)(THStorage *storage);
 
 /* might differ with other API (like CUDA) */
 TH_API void THStorage_(free)(THStorage *storage);
-TH_API void THStorage_(resize)(THStorage *storage, long size);
+TH_API void THStorage_(resize)(THStorage *storage, LONG_PTR size);
 TH_API void THStorage_(fill)(THStorage *storage, real value);
 
 #endif

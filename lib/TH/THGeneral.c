@@ -91,7 +91,7 @@ void THSetArgErrorHandler( void (*torchArgErrorHandlerFunction_)(int argNumber, 
   torchArgErrorHandlerData = data;
 }
 
-void* THAlloc(size_t size)
+void* THAlloc(LONG_PTR size)
 {
   void *ptr;
 
@@ -125,7 +125,7 @@ void* THAlloc(size_t size)
   return ptr;
 }
 
-void* THRealloc(void *ptr, size_t size)
+void* THRealloc(void *ptr, LONG_PTR size)
 {
   if(!ptr)
     return(THAlloc(size));

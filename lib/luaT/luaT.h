@@ -18,6 +18,11 @@ extern "C" {
 # endif
 #endif
 
+#ifdef WIN32
+# include <windows.h>   //to define LONG_PTR
+#endif
+
+
 #if (defined(_MSC_VER) || defined(__MINGW32__))
 # define DLL_EXPORT __declspec(dllexport)
 # define DLL_IMPORT __declspec(dllimport)
@@ -47,8 +52,8 @@ static int luaL_typerror(lua_State *L, int narg, const char *tname)
 
 /* C functions */
 
-LUAT_API void* luaT_alloc(lua_State *L, size_t size);
-LUAT_API void* luaT_realloc(lua_State *L, void *ptr, size_t size);
+LUAT_API void* luaT_alloc(lua_State *L, LONG_PTR size);
+LUAT_API void* luaT_realloc(lua_State *L, void *ptr, LONG_PTR size);
 LUAT_API void luaT_free(lua_State *L, void *ptr);
 
 LUAT_API void luaT_setfuncs(lua_State *L, const luaL_Reg *l, int nup);

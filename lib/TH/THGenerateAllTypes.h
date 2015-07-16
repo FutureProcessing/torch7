@@ -47,8 +47,8 @@
 #undef Real
 #undef TH_REAL_IS_INT
 
-#define real long
-#define accreal long
+#define real LONG_PTR
+#define accreal LONG_PTR
 #define Real Long
 #define TH_REAL_IS_LONG
 #line 1 TH_GENERIC_FILE

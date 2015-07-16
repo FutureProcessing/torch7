@@ -2,12 +2,12 @@
 #include "THFilePrivate.h"
 
 #define IMPLEMENT_THFILE_RW(TYPEC, TYPE)                          \
-  size_t THFile_read##TYPEC##Raw(THFile *self, TYPE *data, size_t n)  \
+  LONG_PTR THFile_read##TYPEC##Raw(THFile *self, TYPE *data, LONG_PTR n)  \
   {                                                               \
     return (*self->vtable->read##TYPEC)(self, data, n);           \
   }                                                               \
                                                                   \
-  size_t THFile_write##TYPEC##Raw(THFile *self, TYPE *data, size_t n) \
+  LONG_PTR THFile_write##TYPEC##Raw(THFile *self, TYPE *data, LONG_PTR n) \
   {                                                               \
     return (*self->vtable->write##TYPEC)(self, data, n);          \
   }
@@ -16,16 +16,16 @@ IMPLEMENT_THFILE_RW(Byte, unsigned char)
 IMPLEMENT_THFILE_RW(Char, char)
 IMPLEMENT_THFILE_RW(Short, short)
 IMPLEMENT_THFILE_RW(Int, int)
-IMPLEMENT_THFILE_RW(Long, long)
+IMPLEMENT_THFILE_RW(Long, LONG_PTR)
 IMPLEMENT_THFILE_RW(Float, float)
 IMPLEMENT_THFILE_RW(Double, double)
 
-size_t THFile_readStringRaw(THFile *self, const char *format, char **str_)
+LONG_PTR THFile_readStringRaw(THFile *self, const char *format, char **str_)
 {
   return self->vtable->readString(self, format, str_);
 }
 
-size_t THFile_writeStringRaw(THFile *self, const char *str, size_t size)
+LONG_PTR THFile_writeStringRaw(THFile *self, const char *str, LONG_PTR size)
 {
   return self->vtable->writeString(self, str, size);
 }
@@ -35,7 +35,7 @@ void THFile_synchronize(THFile *self)
   self->vtable->synchronize(self);
 }
 
-void THFile_seek(THFile *self, size_t position)
+void THFile_seek(THFile *self, LONG_PTR position)
 {
   self->vtable->seek(self, position);
 }
@@ -45,7 +45,7 @@ void THFile_seekEnd(THFile *self)
   self->vtable->seekEnd(self);
 }
 
-size_t THFile_position(THFile *self)
+LONG_PTR THFile_position(THFile *self)
 {
   return self->vtable->position(self);
 }
@@ -130,17 +130,17 @@ IMPLEMENT_THFILE_SCALAR(Byte, unsigned char)
 IMPLEMENT_THFILE_SCALAR(Char, char)
 IMPLEMENT_THFILE_SCALAR(Short, short)
 IMPLEMENT_THFILE_SCALAR(Int, int)
-IMPLEMENT_THFILE_SCALAR(Long, long)
+IMPLEMENT_THFILE_SCALAR(Long, LONG_PTR)
 IMPLEMENT_THFILE_SCALAR(Float, float)
 IMPLEMENT_THFILE_SCALAR(Double, double)
 
 #define IMPLEMENT_THFILE_STORAGE(TYPEC, TYPE)                           \
-  size_t THFile_read##TYPEC(THFile *self, TH##TYPEC##Storage *storage)    \
+  LONG_PTR THFile_read##TYPEC(THFile *self, TH##TYPEC##Storage *storage)    \
   {                                                                     \
     return THFile_read##TYPEC##Raw(self, storage->data, storage->size); \
   }                                                                     \
                                                                         \
-  size_t THFile_write##TYPEC(THFile *self, TH##TYPEC##Storage *storage)   \
+  LONG_PTR THFile_write##TYPEC(THFile *self, TH##TYPEC##Storage *storage)   \
   {                                                                     \
     return THFile_write##TYPEC##Raw(self, storage->data, storage->size); \
   }
@@ -149,6 +149,6 @@ IMPLEMENT_THFILE_STORAGE(Byte, unsigned char)
 IMPLEMENT_THFILE_STORAGE(Char, char)
 IMPLEMENT_THFILE_STORAGE(Short, short)
 IMPLEMENT_THFILE_STORAGE(Int, int)
-IMPLEMENT_THFILE_STORAGE(Long, long)
+IMPLEMENT_THFILE_STORAGE(Long, LONG_PTR)
 IMPLEMENT_THFILE_STORAGE(Float, float)
 IMPLEMENT_THFILE_STORAGE(Double, double)

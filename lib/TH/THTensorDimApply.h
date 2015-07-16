@@ -4,12 +4,12 @@
 #define TH_TENSOR_DIM_APPLY3(TYPE1, TENSOR1, TYPE2, TENSOR2, TYPE3, TENSOR3, DIMENSION, CODE) \
 { \
   TYPE1 *TENSOR1##_data = NULL; \
-  long TENSOR1##_stride = 0, TENSOR1##_size = 0; \
+  LONG_PTR TENSOR1##_stride = 0, TENSOR1##_size = 0; \
   TYPE2 *TENSOR2##_data = NULL; \
-  long TENSOR2##_stride = 0, TENSOR2##_size = 0; \
+  LONG_PTR TENSOR2##_stride = 0, TENSOR2##_size = 0; \
   TYPE3 *TENSOR3##_data = NULL; \
-  long TENSOR3##_stride = 0, TENSOR3##_size = 0; \
-  long *TH_TENSOR_DIM_APPLY_counter = NULL; \
+  LONG_PTR TENSOR3##_stride = 0, TENSOR3##_size = 0; \
+  LONG_PTR *TH_TENSOR_DIM_APPLY_counter = NULL; \
   int TH_TENSOR_DIM_APPLY_hasFinished = 0; \
   int TH_TENSOR_DIM_APPLY_i; \
 \
@@ -29,7 +29,7 @@
       THError("inconsistent tensor sizes"); \
   } \
 \
-  TH_TENSOR_DIM_APPLY_counter = (long*)THAlloc(sizeof(long)*(TENSOR1->nDimension)); \
+  TH_TENSOR_DIM_APPLY_counter = (LONG_PTR*)THAlloc(sizeof(LONG_PTR)*(TENSOR1->nDimension)); \
   for(TH_TENSOR_DIM_APPLY_i = 0; TH_TENSOR_DIM_APPLY_i < TENSOR1->nDimension; TH_TENSOR_DIM_APPLY_i++) \
     TH_TENSOR_DIM_APPLY_counter[TH_TENSOR_DIM_APPLY_i] = 0; \
 \
@@ -94,10 +94,10 @@
 #define TH_TENSOR_DIM_APPLY2(TYPE1, TENSOR1, TYPE2, TENSOR2, DIMENSION, CODE) \
 { \
   TYPE1 *TENSOR1##_data = NULL; \
-  long TENSOR1##_stride = 0, TENSOR1##_size = 0; \
+  LONG_PTR TENSOR1##_stride = 0, TENSOR1##_size = 0; \
   TYPE2 *TENSOR2##_data = NULL; \
-  long TENSOR2##_stride = 0, TENSOR2##_size = 0; \
-  long *TH_TENSOR_DIM_APPLY_counter = NULL; \
+  LONG_PTR TENSOR2##_stride = 0, TENSOR2##_size = 0; \
+  LONG_PTR *TH_TENSOR_DIM_APPLY_counter = NULL; \
   int TH_TENSOR_DIM_APPLY_hasFinished = 0; \
   int TH_TENSOR_DIM_APPLY_i; \
 \
@@ -113,7 +113,7 @@
       THError("inconsistent tensor sizes"); \
   } \
 \
-  TH_TENSOR_DIM_APPLY_counter = (long*)THAlloc(sizeof(long)*(TENSOR1->nDimension)); \
+  TH_TENSOR_DIM_APPLY_counter = (LONG_PTR*)THAlloc(sizeof(LONG_PTR)*(TENSOR1->nDimension)); \
   for(TH_TENSOR_DIM_APPLY_i = 0; TH_TENSOR_DIM_APPLY_i < TENSOR1->nDimension; TH_TENSOR_DIM_APPLY_i++) \
     TH_TENSOR_DIM_APPLY_counter[TH_TENSOR_DIM_APPLY_i] = 0; \
 \
@@ -172,8 +172,8 @@
 #define TH_TENSOR_DIM_APPLY(TYPE, TENSOR, DIMENSION, CODE) \
 { \
   TYPE *TENSOR##_data = NULL; \
-  long TENSOR##_stride = 0, TENSOR##_size = 0; \
-  long *TH_TENSOR_DIM_APPLY_counter = NULL; \
+  LONG_PTR TENSOR##_stride = 0, TENSOR##_size = 0; \
+  LONG_PTR *TH_TENSOR_DIM_APPLY_counter = NULL; \
   int TH_TENSOR_DIM_APPLY_hasFinished = 0; \
   int TH_TENSOR_DIM_APPLY_i; \
 \
@@ -183,7 +183,7 @@
   TENSOR##_data = (TENSOR)->storage->data+(TENSOR)->storageOffset; \
   TENSOR##_stride = (TENSOR)->stride[DIMENSION]; \
   TENSOR##_size = TENSOR->size[DIMENSION]; \
-  TH_TENSOR_DIM_APPLY_counter = (long*)THAlloc(sizeof(long)*(TENSOR->nDimension)); \
+  TH_TENSOR_DIM_APPLY_counter = (LONG_PTR*)THAlloc(sizeof(LONG_PTR)*(TENSOR->nDimension)); \
   for(TH_TENSOR_DIM_APPLY_i = 0; TH_TENSOR_DIM_APPLY_i < TENSOR->nDimension; TH_TENSOR_DIM_APPLY_i++) \
     TH_TENSOR_DIM_APPLY_counter[TH_TENSOR_DIM_APPLY_i] = 0; \
 \
