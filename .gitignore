@@ -1,2 +1,5 @@
 bld/*
 build/*
+bld.cmd
+Dbld.cmd
+.gitignore
