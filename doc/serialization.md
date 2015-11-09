@@ -1,5 +1,5 @@
 
-<a name="torch.serialization.dok"/>
+<a name="torch.serialization.dok"></a>
 # Serialization #
 
 Torch provides 4 high-level methods to serialize/deserialize arbitrary Lua/Torch objects.
@@ -8,8 +8,8 @@ for convenience (these are very common routines).
 
 The first two functions are useful to serialize/deserialize data to/from files:
 
-  - `torch.save(filename, object [, format])`
-  - `[object] torch.load(filename [, format])`
+  - `torch.save(filename, object [, format, referenced])`
+  - `[object] torch.load(filename [, format, referenced])`
 
 The next two functions are useful to serialize/deserialize data to/from strings:
 
@@ -20,14 +20,16 @@ Serializing to files is useful to save arbitrary data structures, or share them 
 Serializing to strings is useful to store arbitrary data structures in databases, or 3rd party
 software.
 
-<a name="torch.save"/>
-### torch.save(filename, object [, format]) ###
+<a name="torch.save"></a>
+### torch.save(filename, object [, format, referenced]) ###
 
-Writes `object` into a file named `filename`. The `format` can be set
-to `ascii` or `binary` (default is binary). Binary format is platform
+Writes `object` into a file named `filename`. The `format` can be set to
+`ascii` or `binary` (default is binary). Binary format is platform
 dependent, but typically more compact and faster to read/write. The ASCII
 format is platform-independent, and should be used to share data structures
-across platforms.
+across platforms. The option `referenced` specifies if
+[object references](file.md#torch.File.referenced) should be tracked or not
+(`true` by default).
 
 ```
 -- arbitrary object:
@@ -43,14 +45,17 @@ obj = {
 torch.save('test.dat', obj)
 ```
 
-<a name="torch.load"/>
-### [object] torch.load(filename [, format]) ###
+<a name="torch.load"></a>
+### [object] torch.load(filename [, format, referenced]) ###
 
-Reads `object` from a file named `filename`. The `format` can be set
-to `ascii` or `binary` (default is binary). Binary format is platform
+Reads `object` from a file named `filename`. The `format` can be set to
+`ascii` or `binary` (default is binary). Binary format is platform
 dependent, but typically more compact and faster to read/write. The ASCII
 format is platform-independent, and should be used to share data structures
-across platforms.
+across platforms. The option `referenced` specifies if
+[object references](file.md#torch.File.referenced) should be tracked or not
+(`true` by default). Note that files written with `referenced` at `true`
+cannot be loaded with `referenced` at `false`.
 
 ```
 -- given serialized object from section above, reload:
@@ -63,7 +68,7 @@ print(obj)
 --  [test] = table - size: 0}
 ```
 
-<a name="torch.serialize"/>
+<a name="torch.serialize"></a>
 ### [str] torch.serialize(object [, format]) ###
 
 Serializes `object` into a string. The `format` can be set
@@ -86,7 +91,7 @@ obj = {
 str = torch.serialize(obj)
 ```
 
-<a name="torch.deserialize"/>
+<a name="torch.deserialize"></a>
 ### [object] torch.deserialize(str [, format]) ###
 
 Deserializes `object` from a string. The `format` can be set
