@@ -103,8 +103,8 @@ static __thread void (*torchGCFunction)(void *data) = NULL;
 static __thread void *torchGCData;
 static long heapSize = 0;
 static __thread long heapDelta = 0;
-static const long heapMaxDelta = 1e6; // limit to +/- 1MB before updating heapSize
-static __thread long heapSoftmax = 3e8; // 300MB, adjusted upward dynamically
+static const long heapMaxDelta = 1000000; // limit to +/- 1MB before updating heapSize
+static __thread long heapSoftmax = 300000000; // 300MB, adjusted upward dynamically
 static const double heapSoftmaxGrowthThresh = 0.8; // grow softmax if >80% max after GC
 static const double heapSoftmaxGrowthFactor = 1.4; // grow softmax by 40%
 
@@ -255,8 +255,13 @@ void* THRealloc(void *ptr, long size)
 
 void THFree(void *ptr)
 {
-  THHeapUpdate(-getAllocSize(ptr));
-  free(ptr);
+    if (ptr) {
+        THHeapUpdate(-getAllocSize(ptr));
+        free(ptr);
+    }
+    else {
+        printf("THFree called with ptr==0");
+    }
 }
 
 double THLog1p(const double x)
