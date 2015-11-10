@@ -260,7 +260,9 @@ void THFree(void *ptr)
         free(ptr);
     }
     else {
+#ifdef __DEBUG
         printf("THFree called with ptr==0\n");
+#endif
     }
 }
 
