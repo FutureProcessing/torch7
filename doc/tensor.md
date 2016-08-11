@@ -118,6 +118,7 @@ ByteTensor -- contains unsigned chars
 CharTensor -- contains signed chars
 ShortTensor -- contains shorts
 IntTensor -- contains ints
+LongTensor -- contains longs
 FloatTensor -- contains floats
 DoubleTensor -- contains doubles
 ```
@@ -880,6 +881,25 @@ y:zero()
 [torch.DoubleTensor of dimension 2x5]
 ```
 
+<a name="torch.Tensor.isSetTo"></a>
+### [boolean] isSetTo(tensor) ###
+
+Returns true iff the `Tensor` is set to the argument `Tensor`. Note: this is
+only true if the tensors are the same size, have the same strides and share the
+same storage and offset.
+
+```lua
+x = torch.Tensor(2,5)
+y = torch.Tensor()
+> y:isSetTo(x)
+ false
+> y:set(x)
+> y:isSetTo(x)
+  true
+> y:t():isSetTo(x)
+  false -- x and y have different strides
+```
+
 <a name="torch.Tensor.set"></a>
 ### [self] set(storage, [storageOffset, sizes, [strides]]) ###
 
@@ -1011,10 +1031,11 @@ Convenience method of the previous method, working for a number of dimensions up
 ## Extracting sub-tensors ##
 
 Each of these methods returns a `Tensor` which is a sub-tensor of the given
-tensor, _with the same `Storage`_. Hence, any modification in the memory of
-the sub-tensor will have an impact on the primary tensor, and vice-versa.
+tensor. 
 
-These methods are very fast, as they do not involve any memory copy.
+For methods `narrow`, `select` and `sub` the returned tensor _shares the same `Storage`_ as the original. Hence, any modification in the memory of the sub-tensor will have an impact on the primary tensor, and vice-versa. These methods are very fast, as they do not involve any memory copy.
+
+For all other methods in this section such as `index`, `indexCopy` etc., since you cannot extract a shared subtensor (technically), a new tensor is returned. If you make changes in this new tensor, they are not reflected in the original tensor.
 
 <a name="torch.Tensor.narrow"></a>
 ### [self] narrow(dim, index, size) ###
@@ -1562,10 +1583,24 @@ Also note how an existing tensor `z` can be used to store the results.
 <a name="torch.Tensor.maskedCopy"></a>
 ### [Tensor] maskedCopy(mask, tensor) ###
 
-Copies the masked elements of `tensor` into itself. The masked elements are those elements having a
+Copies the elements of `tensor` into `mask` locations of itself. The masked elements are those elements having a
 corresponding `1` in the `mask` Tensor. This `mask` is a `torch.ByteTensor`
 of zeros and ones. The destination `Tensor` and the `mask` Tensor should have the same number of elements.
 The source `tensor` should have at least as many elements as the number of 1s in the `mask`.
+
+```lua
+x = torch.Tensor({0, 0, 0, 0})
+mask = torch.ByteTensor({0, 1, 0, 1})
+y = torch.Tensor({10, 20})
+x:maskedCopy(y)
+print(x)
+
+  0
+ 10
+  0
+ 20
+[torch.DoubleTensor of size 4]
+```
 
 ```lua
 x = torch.range(1,4):double():resize(2,2)

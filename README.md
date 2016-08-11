@@ -2,7 +2,10 @@
 [![Build Status](https://travis-ci.org/torch/torch7.svg)](https://travis-ci.org/torch/torch7)
 
 ## Need help? ##
-Gitter Chat is for developers and users who are familiar with torch. Questions or help on installing Torch should be directed to our [Google Groups mailing list](https://groups.google.com/forum/#!forum/torch7). Posting large blobs of text in our chat windows or asking for install help there is very unwelcome. However we are extremely helpful with such issues on our mailing list :)
+
+* Questions, Support, Install issues: [Google groups](https://groups.google.com/forum/#!forum/torch7)
+* Reporting bugs: [torch7](https://github.com/torch/torch7/issues) [nn](https://github.com/torch/nn/issues) [cutorch](https://github.com/torch/cutorch/issues) [cunn](https://github.com/torch/cutorch/issues) [optim](https://github.com/torch/optim/issues) [threads](https://github.com/torch/threads/issues)
+* Hanging out with other developers and users (strictly no install issues, no large blobs of text): [Gitter Chat](https://gitter.im/torch/torch7)
 
 <a name="torch.reference.dok"/>
 # Torch Package Reference Manual #
@@ -32,4 +35,11 @@ useful utilities.
     * [CmdLine](doc/cmdline.md) is a command line argument parsing utility.
     * [Random](doc/random.md) defines a random number generator package with various distributions.
     * Finally useful [utility](doc/utility.md) functions are provided for easy handling of torch tensor types and class inheritance.
+
+<a name="torch.links.dok"/>
+## Useful Links ##
+
+  * [Community packages](https://github.com/torch/torch7/wiki/Cheatsheet)
+  * [Torch Blog](http://torch.ch/blog/)
+  * [Torch Slides](https://github.com/soumith/cvpr2015/blob/master/cvpr-torch.pdf)
 

@@ -6,7 +6,11 @@
 #endif
 
 #if (defined(__unix) || defined(_WIN32))
-#include <malloc.h>
+  #if defined(__FreeBSD__)
+    #include <malloc_np.h>
+  #else
+    #include <malloc.h>
+  #endif
 #elif defined(__APPLE__)
 #include <malloc/malloc.h>
 #endif
@@ -125,12 +129,12 @@ void THSetGCHandler( void (*torchGCFunction_)(void *data), void *data )
 }
 
 static long getAllocSize(void *ptr) {
-#if defined(__unix)
+#if defined(__unix) && defined(HAVE_MALLOC_USABLE_SIZE)
   return malloc_usable_size(ptr);
 #elif defined(__APPLE__)
   return malloc_size(ptr);
 #elif defined(_WIN32)
-  return _msize(ptr);
+  if(ptr) { return _msize(ptr); } else { return 0; }
 #else
   return 0;
 #endif

@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "luaT.h"
 
@@ -85,11 +86,11 @@ void luaT_stackdump(lua_State *L)
         break;
       case LUA_TUSERDATA:
         tname = luaT_typename(L, i);
-        printf("userdata %lx [%s]", (long)lua_topointer(L, i), (tname ? tname : "not a Torch object"));
+        printf("userdata %p [%s]", lua_topointer(L, i), (tname ? tname : "not a Torch object"));
         break;
       case 10:
         tname = luaT_typename(L, i);
-        printf("cdata %lx [%s]", (long)lua_topointer(L, i), (tname ? tname : "not a Torch object"));
+        printf("cdata %p [%s]", lua_topointer(L, i), (tname ? tname : "not a Torch object"));
         break;
       case LUA_TTABLE:
         lua_pushvalue(L, i);
@@ -104,7 +105,7 @@ void luaT_stackdump(lua_State *L)
         else
         {
           tname = luaT_typename(L, i);
-          printf("table %lx [%s]", (long)lua_topointer(L, i), (tname ? tname : "not a Torch object"));
+          printf("table %p [%s]", lua_topointer(L, i), (tname ? tname : "not a Torch object"));
         }
         break;
       default:
@@ -346,6 +347,47 @@ void *luaT_checkudata(lua_State *L, int ud, const char *tname)
   if(!p)
     luaT_typerror(L, ud, tname);
   return p;
+}
+
+void luaT_pushlong(lua_State *L, long n)
+{
+#if LUA_VERSION_NUM >= 503
+  /* Only push the value as an integer if it fits in lua_Integer,
+   or if the lua_Number representation will be even worse */
+  if (sizeof(lua_Integer) >= sizeof(long) || sizeof(lua_Number) == sizeof(lua_Integer)) {
+    lua_pushinteger(L, n);
+  } else {
+    lua_pushnumber(L, (lua_Number)n);
+  }
+#else
+  lua_pushnumber(L, (lua_Number)n);
+#endif
+}
+
+long luaT_checklong(lua_State *L, int idx)
+{
+#if LUA_VERSION_NUM >= 503
+  if (sizeof(lua_Integer) >= sizeof(long) || sizeof(lua_Number) == sizeof(lua_Integer)) {
+    return (long)luaL_checkinteger(L, idx);
+  } else {
+    return (long)luaL_checknumber(L, idx);
+  }
+#else
+  return (long)luaL_checknumber(L, idx);
+#endif
+}
+
+long luaT_tolong(lua_State *L, int idx)
+{
+#if LUA_VERSION_NUM == 503
+  if (sizeof(lua_Integer) >= sizeof(long) || sizeof(lua_Number) == sizeof(lua_Integer)) {
+    return (long)lua_tointeger(L, idx);
+  } else {
+    return (long)lua_tonumber(L, idx);
+  }
+#else
+  return (long)lua_tonumber(L, idx);
+#endif
 }
 
 void *luaT_getfieldcheckudata(lua_State *L, int ud, const char *field, const char *tname)
@@ -865,7 +907,7 @@ int luaT_lua_pushudata(lua_State *L)
   else if(luaT_iscdata(L, 1))
     udata = ((void**)lua_topointer(L, 1))[4];
   else if(lua_isnumber(L, 1))
-    udata = (void*)(long)lua_tonumber(L, 1);
+    udata = (void*)(uintptr_t)lua_tonumber(L, 1);
   else
     luaL_argerror(L, 1, "expecting number or cdata");
 
@@ -936,6 +978,14 @@ int luaT_lua_isequal(lua_State *L)
   return 1;
 }
 
+static void luaT_pushpointer(lua_State *L, const void *ptr)
+{
+  // 2^53 - this assumes that lua_Number is a double
+  if ((uintptr_t)ptr > 9007199254740992LLU)
+    luaL_error(L, "Pointer value can't be represented as a Lua number (an overflow would occur)");
+  lua_pushnumber(L, (uintptr_t)(ptr));
+}
+
 int luaT_lua_pointer(lua_State *L)
 {
   if(lua_type(L, 1) == 10) /* luajit cdata */
@@ -943,13 +993,13 @@ int luaT_lua_pointer(lua_State *L)
     /* we want the pointer holded by cdata */
     /* not the pointer on the cdata object */
     const void* ptr = *((void**)lua_topointer(L, 1));
-    lua_pushnumber(L, (long)(ptr));
+    luaT_pushpointer(L, ptr);
     return 1;
   }
   else if (luaT_iscdata(L, 1)) /* luaffi cdata */
   {
     void** ptr = (void**)lua_touserdata(L, 1);
-    lua_pushnumber(L, (long)(ptr[4]));
+    luaT_pushpointer(L, ptr[4]);
     return 1;
   }
   else if(lua_isuserdata(L, 1))
@@ -957,19 +1007,19 @@ int luaT_lua_pointer(lua_State *L)
     void **ptr;
     luaL_argcheck(L, luaT_typename(L, 1), 1, "Torch object expected");
     ptr = lua_touserdata(L, 1);
-    lua_pushnumber(L, (long)(*ptr));
+    luaT_pushpointer(L, *ptr);
     return 1;
   }
   else if(lua_istable(L, 1) || lua_isthread(L, 1) || lua_isfunction(L, 1))
   {
     const void* ptr = lua_topointer(L, 1);
-    lua_pushnumber(L, (long)(ptr));
+    luaT_pushpointer(L, ptr);
     return 1;
   }
   else if(lua_isstring(L, 1))
   {
     const char* ptr = lua_tostring(L, 1);
-    lua_pushnumber(L, (long)(ptr));
+    luaT_pushpointer(L, ptr);
     return 1;
   }
   else
@@ -1126,12 +1176,17 @@ static int luaT_mt__newindex(lua_State *L)
   return 0;
 }
 
-/* note: check dans metatable pour ca, donc necessaire */
-#define MT_DECLARE_OPERATOR(NAME, NIL_BEHAVIOR)                         \
-  int luaT_mt__##NAME(lua_State *L)                                     \
-  {                                                                     \
+
+#define MT_UNI_OPERATOR_GET_HANDLER(NAME)                               \
     if(!lua_getmetatable(L, 1))                                         \
-      luaL_error(L, "internal error in __" #NAME ": no metatable");     \
+      luaL_error(L, "internal error in __" #NAME ": no metatable");
+
+#define MT_BIN_OPERATOR_GET_HANDLER(NAME)                               \
+    if(!lua_getmetatable(L, 1) && !lua_getmetatable(L,2) )              \
+      luaL_error(L, "internal error in __" #NAME                        \
+              ": no metatable in both operands");
+
+#define MT_DECLARE_OPERATOR_BODY(NAME, NIL_BEHAVIOR)                    \
                                                                         \
     lua_getfield(L, -1, "__" #NAME "__");                               \
     if(lua_isnil(L, -1))                                                \
@@ -1144,35 +1199,56 @@ static int luaT_mt__newindex(lua_State *L)
       {                                                                 \
         lua_insert(L, 1); /* insert function */                         \
         lua_pop(L, 1); /* remove metatable */                           \
-        lua_call(L, lua_gettop(L)-1, LUA_MULTRET); /* we return the result of the call */ \
+        lua_call(L, lua_gettop(L)-1, LUA_MULTRET);                      \
+          /* we return the result of the call */                        \
         return lua_gettop(L);                                           \
       }                                                                 \
       /* we return the thing the user left in __tostring__ */           \
     }                                                                   \
     return 0;                                                           \
+
+/* note: check dans metatable pour ca, donc necessaire */
+#define MT_DECLARE_OPERATOR(NAME, NIL_BEHAVIOR)                         \
+  int luaT_mt__##NAME(lua_State *L)                                     \
+  {                                                                     \
+    MT_UNI_OPERATOR_GET_HANDLER(NAME)                                   \
+    MT_DECLARE_OPERATOR_BODY(NAME,NIL_BEHAVIOR)                         \
   }
 
-MT_DECLARE_OPERATOR(tostring,
-                    lua_pushstring(L, luaT_typename(L, 1));
-                    return 1;)
-MT_DECLARE_OPERATOR(add, luaL_error(L, "%s has no addition operator", luaT_typename(L, 1)))
-MT_DECLARE_OPERATOR(sub, luaL_error(L, "%s has no substraction operator", luaT_typename(L, 1)))
-MT_DECLARE_OPERATOR(mul, luaL_error(L, "%s has no multiplication operator", luaT_typename(L, 1)))
-MT_DECLARE_OPERATOR(div, luaL_error(L, "%s has no division operator", luaT_typename(L, 1)))
-MT_DECLARE_OPERATOR(mod, luaL_error(L, "%s has no modulo operator", luaT_typename(L, 1)))
-MT_DECLARE_OPERATOR(pow, luaL_error(L, "%s has no power operator", luaT_typename(L, 1)))
-MT_DECLARE_OPERATOR(unm, luaL_error(L, "%s has no negation operator", luaT_typename(L, 1)))
-MT_DECLARE_OPERATOR(concat, luaL_error(L, "%s has no concat operator", luaT_typename(L, 1)))
-MT_DECLARE_OPERATOR(len, luaL_error(L, "%s has no length operator", luaT_typename(L, 1)))
-MT_DECLARE_OPERATOR(eq,
+#define MT_DECLARE_BIN_OPERATOR(NAME, NIL_BEHAVIOR)                     \
+  int luaT_mt__##NAME(lua_State *L)                                     \
+  {                                                                     \
+    MT_BIN_OPERATOR_GET_HANDLER(NAME)                                   \
+    MT_DECLARE_OPERATOR_BODY(NAME,NIL_BEHAVIOR)                         \
+  }
+
+
+#define BIN_OPERATOR_ERROR(NAME)                                        \
+    luaL_error(L, "both %s and %s have no " #NAME " operator",          \
+            luaT_typename(L, 1), luaT_typename(L,2))
+
+MT_DECLARE_BIN_OPERATOR(add,    BIN_OPERATOR_ERROR(addition) )
+MT_DECLARE_BIN_OPERATOR(sub,    BIN_OPERATOR_ERROR(substraction) )
+MT_DECLARE_BIN_OPERATOR(mul,    BIN_OPERATOR_ERROR(multiplication) )
+MT_DECLARE_BIN_OPERATOR(div,    BIN_OPERATOR_ERROR(division) )
+MT_DECLARE_BIN_OPERATOR(mod,    BIN_OPERATOR_ERROR(modulo) )
+MT_DECLARE_BIN_OPERATOR(pow,    BIN_OPERATOR_ERROR(power) )
+MT_DECLARE_BIN_OPERATOR(concat, BIN_OPERATOR_ERROR(concat) )
+MT_DECLARE_BIN_OPERATOR(eq,
                     lua_settop(L, 2);
                     lua_pushcfunction(L, luaT_lua_isequal);
                     lua_insert(L, 1);
                     lua_call(L, 2, 1);
                     return 1;)
-MT_DECLARE_OPERATOR(lt, luaL_error(L, "%s has no lower than operator", luaT_typename(L, 1)))
-MT_DECLARE_OPERATOR(le, luaL_error(L, "%s has no lower or equal than operator", luaT_typename(L, 1)))
+MT_DECLARE_BIN_OPERATOR(lt, BIN_OPERATOR_ERROR(less-than) )
+MT_DECLARE_BIN_OPERATOR(le, BIN_OPERATOR_ERROR(less-equal) )
+
+MT_DECLARE_OPERATOR(tostring,
+                    lua_pushstring(L, luaT_typename(L, 1));
+                    return 1;)
 MT_DECLARE_OPERATOR(call, luaL_error(L, "%s has no call operator", luaT_typename(L, 1)))
+MT_DECLARE_OPERATOR(unm, luaL_error(L, "%s has no negation operator", luaT_typename(L, 1)))
+MT_DECLARE_OPERATOR(len, luaL_error(L, "%s has no length operator", luaT_typename(L, 1)))
 
 
 /* constructor metatable methods */
