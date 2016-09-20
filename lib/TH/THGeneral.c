@@ -223,7 +223,7 @@ void* THAlloc(long size)
   }
 
   if(!ptr)
-    THError("$ Torch: not enough memory: you tried to allocate %dGB. Buy new RAM!", size/1073741824);
+    THError("$ Torch: not enough memory: you tried to allocate %d KB. Buy new RAM!", size/1024);
 
   return ptr;
 }
@@ -252,7 +252,7 @@ void* THRealloc(void *ptr, long size)
   THHeapUpdate(getAllocSize(newptr ? newptr : ptr));
 
   if(!newptr)
-    THError("$ Torch: not enough memory: you tried to reallocate %dGB. Buy new RAM!", size/1073741824);
+    THError("$ Torch: not enough memory: you tried to reallocate %d KB. Buy new RAM!", size/1024);
 
   return newptr;
 }

@@ -16,7 +16,7 @@ void* luaT_alloc(lua_State *L, long size)
 
   ptr = malloc(size);
   if(!ptr)
-    luaL_error(L, "$ Torch: not enough memory: you tried to allocate %dGB. Buy new RAM!", size/1073741824);
+    luaL_error(L, "$ Torch: not enough memory: you tried to allocate %d KB. Buy new RAM!", size/1024);
 
   return ptr;
 }
@@ -37,7 +37,7 @@ void* luaT_realloc(lua_State *L, void *ptr, long size)
 
   ptr = realloc(ptr, size);
   if(!ptr)
-    luaL_error(L, "$ Torch: not enough memory: you tried to reallocate %dGB. Buy new RAM!", size/1073741824);
+    luaL_error(L, "$ Torch: not enough memory: you tried to reallocate %d KB. Buy new RAM!", size/1024);
   return ptr;
 }
 
