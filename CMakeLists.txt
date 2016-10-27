@@ -22,7 +22,7 @@ ENDIF(NOT MSVC)
 # When using MSVC
 IF(MSVC)
   # we want to respect the standard, and we are bored of those **** .
-  ADD_DEFINITIONS(-D_CRT_SECURE_NO_DEPRECATE=1)
+  ADD_DEFINITIONS(-D_CRT_SECURE_NO_DEPRECATE=1 /wo4244 /wo4018)
 ENDIF(MSVC)
 
 # OpenMP support?
